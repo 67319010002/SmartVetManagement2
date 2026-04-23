@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Owner {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  pets      Pet[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pet {
+  id             Int             @id @default(autoincrement())
+  name           String
+  species        String
+  breed          String?
+  ownerId        Int
+  owner          Owner           @relation(fields: [ownerId], references: [id])
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Veterinarian {
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  password       String
+  name           String
+  specialization String?
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  date        DateTime // Date of the appointment
+  startTime   DateTime // Using DateTime to store time
+  endTime     DateTime
+  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+  petId       Int
+  pet         Pet      @relation(fields: [petId], references: [id])
+  vetId       Int
+  vet         Veterinarian @relation(fields: [vetId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MedicalRecord {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @default(now())
+  description String
+  treatment   String?
+  petId       Int
+  pet         Pet      @relation(fields: [petId], references: [id])
+  vetId       Int
+  vet         Veterinarian @relation(fields: [vetId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
